@@ -1,0 +1,6 @@
+{
+  "name": "RT/RW Net OS - Billing & Ruijie Management",
+  "description": "Sistem Manajemen Keuangan, Billing Otomatis, Auto-Isolir Ruijie, DANA Payment Gateway, WhatsApp Bot, dan Portal Pelanggan RT/RW Net.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
