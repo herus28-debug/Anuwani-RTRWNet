@@ -218,10 +218,23 @@ export interface WhatsAppTemplates {
 
 export interface SystemSettings {
   ispName: string;
+  brandShortName?: string;
   tagline: string;
+  logoUrl?: string; // Base64 data URL or external URL
+  logoIconType?: 'wifi' | 'globe' | 'shield' | 'zap' | 'radio' | 'cpu'; // Fallback icon type
+  primaryColor?: string; // Custom theme hex color
+  companyLegalName?: string; // PT / CV / Koperasi / Usaha Mandiri
+  companyAddress?: string; // Alamat kantor pusat / NOC
+  companyEmail?: string;
+  companyPhone?: string;
+  companyNpwp?: string; // NPWP / NIB usaha
+  companyWebsite?: string;
+  billingFooterNote?: string;
   waContactCenter: string;
   rtRwCoverage: string;
   bankAccount: string;
+  bankName?: string;
+  bankHolder?: string;
   danaMerchantId: string;
   danaApiKey: string;
   danaWebhookSecret: string;

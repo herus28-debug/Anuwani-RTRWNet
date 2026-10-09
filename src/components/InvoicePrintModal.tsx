@@ -57,19 +57,32 @@ export const InvoicePrintModal: React.FC = () => {
           {/* Invoice Header */}
           <div className="flex justify-between items-start pb-4 border-b border-slate-200">
             <div>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold">
-                  <Wifi className="w-4 h-4" />
-                </div>
+              <div className="flex items-center space-x-2.5">
+                {settings.logoUrl ? (
+                  <img
+                    src={settings.logoUrl}
+                    alt={settings.brandShortName || settings.ispName}
+                    className="w-10 h-10 rounded-xl object-contain bg-white p-1 border border-slate-200 shadow-sm"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center text-white font-bold shadow-sm">
+                    <Wifi className="w-5 h-5" />
+                  </div>
+                )}
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 tracking-tight">
                     {settings.ispName}
                   </h3>
+                  {settings.companyLegalName && (
+                    <p className="text-[10px] font-semibold text-sky-700">{settings.companyLegalName}</p>
+                  )}
                   <p className="text-[10px] text-slate-500">{settings.tagline}</p>
                 </div>
               </div>
-              <div className="text-[10px] text-slate-500 mt-2">
-                Cakupan: {settings.rtRwCoverage} · WA NOC: {settings.waContactCenter}
+              <div className="text-[10px] text-slate-500 mt-2 space-y-0.5">
+                {settings.companyAddress && <div>Alamat: {settings.companyAddress}</div>}
+                <div>Cakupan: {settings.rtRwCoverage} · WA NOC: {settings.waContactCenter}</div>
+                {settings.companyNpwp && <div>NPWP: {settings.companyNpwp}</div>}
               </div>
             </div>
 

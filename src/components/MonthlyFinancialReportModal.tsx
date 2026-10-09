@@ -245,7 +245,7 @@ export const MonthlyFinancialReportModal: React.FC<MonthlyFinancialReportModalPr
       doc.setFontSize(7);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `Dokumen ini digenerate secara otomatis oleh anuwani Billing OS · Diverifikasi via Ruijie Reyee Cloud & DANA Gateway`,
+        `Dokumen ini digenerate secara otomatis oleh ${settings.companyLegalName || settings.ispName || 'Anuwani'} Billing OS · Diverifikasi via Ruijie Reyee Cloud & DANA Gateway`,
         14,
         290
       );
@@ -335,14 +335,31 @@ export const MonthlyFinancialReportModal: React.FC<MonthlyFinancialReportModalPr
           
           {/* Document Header */}
           <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-start">
-            <div>
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                {settings.ispName}
-              </h1>
-              <p className="text-xs text-slate-600 mt-0.5">{settings.tagline}</p>
-              <p className="text-[11px] text-slate-500 mt-1">
-                Jangkauan: {settings.rtRwCoverage} · Kontak NOC: {settings.waContactCenter}
-              </p>
+            <div className="flex items-start space-x-3">
+              {settings.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt={settings.brandShortName || settings.ispName}
+                  className="w-12 h-12 rounded-xl object-contain bg-white p-1 border border-slate-200 shadow-sm"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-xl bg-sky-600 flex items-center justify-center text-white font-bold shadow-sm">
+                  <Building className="w-6 h-6" />
+                </div>
+              )}
+              <div>
+                <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                  {settings.ispName}
+                </h1>
+                {settings.companyLegalName && (
+                  <p className="text-[11px] font-semibold text-sky-700">{settings.companyLegalName}</p>
+                )}
+                <p className="text-xs text-slate-600 mt-0.5">{settings.tagline}</p>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {settings.companyAddress && <span>{settings.companyAddress} · </span>}
+                  Jangkauan: {settings.rtRwCoverage} · Kontak NOC: {settings.waContactCenter}
+                </p>
+              </div>
             </div>
 
             <div className="text-right">

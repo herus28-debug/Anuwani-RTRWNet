@@ -48,7 +48,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   setIsCollapsed,
 }) => {
-  const { currentUser, logout, pelangganList, tiketList, tagihanList } = useApp();
+  const { currentUser, logout, pelangganList, tiketList, tagihanList, settings } = useApp();
 
   const pendingPelanggan = pelangganList.filter(p => p.status === 'pending').length;
   const isolatedPelanggan = pelangganList.filter(p => p.status === 'isolated').length;
@@ -184,11 +184,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
           
           {/* Brand info on mobile or when expanded */}
           <div className={`flex items-center space-x-2.5 ${isCollapsed ? 'lg:hidden' : 'flex'}`}>
-            <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold">
-              <Wifi className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-white tracking-tight">MENU UTAMA</div>
+            {settings.logoUrl ? (
+              <img
+                src={settings.logoUrl}
+                alt={settings.brandShortName || settings.ispName}
+                className="w-8 h-8 rounded-lg object-contain bg-slate-800 p-0.5 border border-slate-700 shadow"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold shadow">
+                <Wifi className="w-5 h-5" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-white tracking-tight truncate max-w-[130px]">
+                {settings.brandShortName || 'Anuwani'}
+              </div>
               <div className="text-[10px] text-slate-400 capitalize">Role: {currentUser.role}</div>
             </div>
           </div>

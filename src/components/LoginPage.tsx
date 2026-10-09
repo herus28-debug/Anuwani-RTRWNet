@@ -20,7 +20,7 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onOpenPublicVoucher }) => {
-  const { login } = useApp();
+  const { login, settings } = useApp();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -66,18 +66,28 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onOpenPublicVoucher }) => 
       {/* Top Bar with Public Voucher Link */}
       <header className="relative z-10 max-w-6xl w-full mx-auto flex items-center justify-between pb-6 border-b border-slate-900">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center text-white shadow-lg">
-            <Wifi className="w-6 h-6" />
-          </div>
+          {settings.logoUrl ? (
+            <img
+              src={settings.logoUrl}
+              alt={settings.brandShortName || settings.ispName}
+              className="w-10 h-10 rounded-xl object-contain bg-slate-900 p-0.5 border border-slate-700 shadow-lg"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-sky-600 flex items-center justify-center text-white shadow-lg">
+              <Wifi className="w-6 h-6" />
+            </div>
+          )}
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-lg tracking-tight text-white">anuwani</span>
+              <span className="font-extrabold text-lg tracking-tight text-white">
+                {settings.brandShortName || 'Anuwani'}
+              </span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
                 RT/RW NET OS
               </span>
             </div>
             <p className="text-[11px] text-slate-400 hidden sm:block">
-              Ruijie Reyee Cloud NOC · CodeIgniter v4.6 & MySQL
+              {settings.tagline || 'Ruijie Reyee Cloud NOC · CodeIgniter v4.6 & MySQL'}
             </p>
           </div>
         </div>
@@ -186,7 +196,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onOpenPublicVoucher }) => 
               Masuk ke Akun Anda
             </h2>
             <p className="text-xs text-slate-400">
-              Gunakan email & kata sandi yang telah terdaftar di sistem anuwani.
+              Gunakan email & kata sandi yang telah terdaftar di sistem {settings.brandShortName || 'Anuwani'}.
             </p>
           </div>
 
@@ -288,7 +298,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onOpenPublicVoucher }) => 
       {/* Footer */}
       <footer className="relative z-10 max-w-6xl w-full mx-auto pt-6 border-t border-slate-900 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
         <div>
-          © 2026 anuwani RT/RW Net Management System. Hak cipta dilindungi.
+          © 2026 {settings.companyLegalName || settings.ispName || 'Anuwani RT/RW Net'}. Hak cipta dilindungi.
         </div>
         <div>
           Auto-isolir sync & verifikasi DANA Payment Gateway real-time.

@@ -774,11 +774,24 @@ export const initialWhatsAppLogs: WhatsAppLog[] = [
 ];
 
 export const initialSettings: SystemSettings = {
-  ispName: 'anuwani RT/RW NET',
-  tagline: 'Internet Cepat, Hemat & Handal Warga Sukamaju',
+  ispName: 'Anuwani RT/RW NET',
+  brandShortName: 'Anuwani',
+  tagline: 'Internet Super Cepat, Hemat & Handal untuk Komunitas Warga',
+  logoUrl: '',
+  logoIconType: 'wifi',
+  primaryColor: '#0284c7',
+  companyLegalName: 'PT ANUWANI DIGITAL NETWORK INDONESIA',
+  companyAddress: 'Jl. Melati Raya No. 12, RW 05 Kelurahan Sukamaju, Kec. Cilodong, Kota Depok, Jawa Barat 16413',
+  companyEmail: 'info@anuwani.net.id',
+  companyPhone: '021-87654321',
+  companyNpwp: '01.234.567.8-412.000',
+  companyWebsite: 'https://anuwani.rtrw.net',
+  billingFooterNote: 'Terima kasih atas pembayaran tepat waktu. Internet cepat, lingkungan guyub rukun.',
   waContactCenter: '0812-3456-7890',
   rtRwCoverage: 'RT 01 s/d RT 06, RW 05 Kelurahan Sukamaju',
-  bankAccount: 'Bank BCA 883019281 a.n Budi Santoso',
+  bankAccount: 'Bank BCA 883019281 a.n PT Anuwani Digital Network',
+  bankName: 'Bank Central Asia (BCA)',
+  bankHolder: 'PT Anuwani Digital Network',
   danaMerchantId: 'DANA_MERCHANT_RTRW_998',
   danaApiKey: 'live_dana_sec_key_rtrw_net_992182049182',
   danaWebhookSecret: 'whsec_dana_ruijie_auto_sync_33918204',
@@ -801,10 +814,10 @@ export const initialSettings: SystemSettings = {
     enableBotVoucherHotspot: true,
   },
   waTemplates: {
-    templateAktivasi: `*SELAMAT! KONEKSI INTERNET anuwani ANDA TELAH AKTIF*
+    templateAktivasi: `*SELAMAT! KONEKSI INTERNET ANUWANI TELAH AKTIF*
 
 Halo *{NAMA}*,
-Registrasi dan pemasangan internet RT/RW Net Anda telah berhasil diaktivasi.
+Registrasi dan pemasangan internet Anuwani RT/RW Net Anda telah berhasil diaktivasi.
 
 Detail Akun Pelanggan:
 - No. Pelanggan : *{NO_PELANGGAN}*

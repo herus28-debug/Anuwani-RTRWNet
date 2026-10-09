@@ -114,6 +114,93 @@ const CustomCustomerTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+// Custom Tooltip for Expense vs Revenue Comparison Bar Chart
+const CustomExpenseComparisonTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0]?.payload;
+    const totalExp = (data?.listrik || 0) + (data?.maintenance || 0) + (data?.gaji || 0) + (data?.bandwidth || 0) + (data?.lainnya || 0);
+    const revenue = data?.inflow || 0;
+    const diff = revenue - totalExp;
+
+    return (
+      <div className="bg-slate-900/95 border border-slate-700/80 p-3.5 rounded-xl shadow-2xl text-xs space-y-2 backdrop-blur-md min-w-[260px]">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span className="font-bold text-slate-100">{label}</span>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-sky-400 border border-slate-700">
+            Perbandingan Opex vs Pendapatan
+          </span>
+        </div>
+
+        {/* Pendapatan (Revenue) */}
+        <div className="bg-emerald-950/40 border border-emerald-900/50 rounded-lg p-2 space-y-1">
+          <div className="flex items-center justify-between text-emerald-400 font-bold">
+            <span className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
+              <span>Total Pendapatan:</span>
+            </span>
+            <span className="font-mono text-white">Rp {revenue.toLocaleString('id-ID')}</span>
+          </div>
+        </div>
+
+        {/* Komponen Pengeluaran Operasional */}
+        <div className="space-y-1 pt-1 border-t border-slate-800">
+          <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            Rincian Pengeluaran Operasional:
+          </div>
+          
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="flex items-center space-x-1.5 text-amber-300">
+              <span className="w-2 h-2 rounded-sm bg-amber-500"></span>
+              <span>Biaya Listrik PLN NOC:</span>
+            </span>
+            <span className="font-mono text-white font-medium">Rp {(data?.listrik || 0).toLocaleString('id-ID')}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="flex items-center space-x-1.5 text-orange-300">
+              <span className="w-2 h-2 rounded-sm bg-orange-500"></span>
+              <span>Maintenance Jaringan FO:</span>
+            </span>
+            <span className="font-mono text-white font-medium">Rp {(data?.maintenance || 0).toLocaleString('id-ID')}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="flex items-center space-x-1.5 text-purple-300">
+              <span className="w-2 h-2 rounded-sm bg-purple-500"></span>
+              <span>Gaji & Honor Teknisi:</span>
+            </span>
+            <span className="font-mono text-white font-medium">Rp {(data?.gaji || 0).toLocaleString('id-ID')}</span>
+          </div>
+
+          {(data?.bandwidth || 0) > 0 && (
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="flex items-center space-x-1.5 text-blue-300">
+                <span className="w-2 h-2 rounded-sm bg-blue-500"></span>
+                <span>Bandwidth Upstream ISP:</span>
+              </span>
+              <span className="font-mono text-white font-medium">Rp {(data?.bandwidth || 0).toLocaleString('id-ID')}</span>
+            </div>
+          )}
+
+          <div className="border-t border-slate-800/80 pt-1.5 flex items-center justify-between font-bold text-rose-400">
+            <span>Total Pengeluaran:</span>
+            <span className="font-mono text-white">Rp {totalExp.toLocaleString('id-ID')}</span>
+          </div>
+        </div>
+
+        {/* Net Selisih */}
+        <div className="border-t border-slate-800 pt-1.5 flex items-center justify-between font-bold">
+          <span className="text-slate-300">Sisa Laba Bersih:</span>
+          <span className={`font-mono ${diff >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {diff >= 0 ? '+' : ''}Rp {diff.toLocaleString('id-ID')}
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 // Custom Tooltip for Cash Flow Area Chart (Arus Kas Masuk vs Arus Kas Keluar)
 const CustomCashFlowTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -229,7 +316,8 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
     generateTagihanBulanBaru,
     aktivasiPelanggan,
     setSelectedTagihanForPayment,
-    packages
+    packages,
+    settings
   } = useApp();
 
   const [cronRunning, setCronRunning] = useState(false);
@@ -242,7 +330,8 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
   const [operationalExpenses, setOperationalExpenses] = useState<OperationalExpenseItem[]>(initialOperationalExpenses);
   const [financialTimeframe, setFinancialTimeframe] = useState<'6M' | '3M'>('6M');
   const [showSurplusLine, setShowSurplusLine] = useState<boolean>(true);
-  const [financialActiveTab, setFinancialActiveTab] = useState<'chart' | 'breakdown' | 'table'>('chart');
+  const [financialActiveTab, setFinancialActiveTab] = useState<'chart' | 'comparison' | 'breakdown' | 'table'>('comparison');
+  const [comparisonBarMode, setComparisonBarMode] = useState<'stacked' | 'grouped'>('grouped');
   const [showAddExpenseModal, setShowAddExpenseModal] = useState<boolean>(false);
   const [expenseSuccessToast, setExpenseSuccessToast] = useState<string | null>(null);
 
@@ -579,7 +668,7 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
     ]);
 
     let csvContent = 'data:text/csv;charset=utf-8,';
-    csvContent += 'LAPORAN ARUS KAS KEUANGAN BULANAN - RT/RW NET ANUWANI\n';
+    csvContent += `LAPORAN ARUS KAS KEUANGAN BULANAN - ${(settings.companyLegalName || settings.ispName || 'ANUWANI RT/RW NET').toUpperCase()}\n`;
     csvContent += `Dicetak pada: ${new Date().toLocaleString('id-ID')}\n\n`;
     csvContent += headers.join(',') + '\n';
     rows.forEach(row => {
@@ -613,6 +702,13 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
           <div className="flex items-center space-x-2">
+            {settings.logoUrl ? (
+              <img
+                src={settings.logoUrl}
+                alt={settings.brandShortName || settings.ispName}
+                className="w-8 h-8 rounded-lg object-contain bg-slate-100 p-0.5 border border-slate-200"
+              />
+            ) : null}
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Dashboard Super Admin & NOC
             </h1>
@@ -621,13 +717,24 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
               <span>Telemetry Live</span>
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Monitoring finansial real-time, grafik tren Recharts, sinkronisasi Ruijie Reyee Cloud & auto-isolir terintegrasi.
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5 flex items-center space-x-1.5">
+            <span className="font-semibold text-sky-700">{settings.companyLegalName || settings.ispName || 'Anuwani RT/RW NET'}</span>
+            <span>•</span>
+            <span>{settings.tagline || 'Monitoring finansial & auto-isolir Ruijie Reyee Cloud terintegrasi.'}</span>
           </p>
         </div>
 
         {/* Quick Operations Button */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setActiveTab('settings')}
+            className="inline-flex items-center space-x-1.5 px-3 py-2 bg-white border border-slate-200 hover:border-sky-300 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+            title="Kelola Identitas Usaha, Logo & Pengaturan Sistem"
+          >
+            <Building2 className="w-3.5 h-3.5 text-sky-600" />
+            <span>Pengaturan Branding</span>
+          </button>
+
           <button
             onClick={handleRunAutoIsolirCron}
             disabled={cronRunning}
@@ -1056,14 +1163,14 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
               <div>
                 <div className="flex items-center space-x-2">
                   <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-                    Laporan Keuangan Bulanan & Analisis Arus Kas
+                    Laporan Keuangan Bulanan & Analisis Biaya Operasional
                   </h2>
                   <span className="hidden sm:inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                    Arus Kas Real-Time
+                    Arus Kas & Opex Real-Time
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Visualisasi grafik area arus kas masuk (pembayaran pelanggan) vs arus kas keluar (biaya operasional RT/RW Net)
+                  Visualisasi grafik bar perbandingan pendapatan vs pengeluaran operasional (listrik, maintenance FO, gaji teknisi) & grafik area arus kas
                 </p>
               </div>
             </div>
@@ -1075,6 +1182,17 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
             {/* View Switcher Tabs */}
             <div className="inline-flex p-1 bg-slate-100 rounded-xl text-xs font-medium">
               <button
+                onClick={() => setFinancialActiveTab('comparison')}
+                className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-colors text-[11px] ${
+                  financialActiveTab === 'comparison'
+                    ? 'bg-white text-emerald-700 shadow-xs font-bold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>Bar Chart Opex vs Pendapatan</span>
+              </button>
+              <button
                 onClick={() => setFinancialActiveTab('chart')}
                 className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg transition-colors text-[11px] ${
                   financialActiveTab === 'chart'
@@ -1083,7 +1201,7 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
                 }`}
               >
                 <Activity className="w-3.5 h-3.5" />
-                <span>Grafik Area</span>
+                <span>Grafik Area Arus Kas</span>
               </button>
               <button
                 onClick={() => setFinancialActiveTab('breakdown')}
@@ -1258,6 +1376,278 @@ export const DashboardSuperAdmin: React.FC<DashboardSuperAdminProps> = ({ setAct
           </div>
 
         </div>
+
+        {/* Tab Baru: Visualisasi Bar Chart Perbandingan Pengeluaran Operasional vs Pendapatan */}
+        {financialActiveTab === 'comparison' && (
+          <div className="space-y-4">
+            
+            {/* Header Kontrol & Legend untuk Bar Chart */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-2 text-xs border-b border-slate-100 pb-3">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                {/* Legend Pendapatan */}
+                <div className="flex items-center space-x-1.5 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  <div className="w-3.5 h-3 rounded-xs bg-emerald-500 shadow-xs"></div>
+                  <span className="font-bold text-emerald-900">
+                    Pendapatan (Tagihan & Voucher)
+                  </span>
+                </div>
+
+                {/* Legend Listrik PLN */}
+                <div className="flex items-center space-x-1.5 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                  <div className="w-3.5 h-3 rounded-xs bg-amber-500 shadow-xs"></div>
+                  <span className="font-bold text-amber-900">
+                    Biaya Listrik PLN NOC
+                  </span>
+                </div>
+
+                {/* Legend Maintenance FO */}
+                <div className="flex items-center space-x-1.5 bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200">
+                  <div className="w-3.5 h-3 rounded-xs bg-orange-500 shadow-xs"></div>
+                  <span className="font-bold text-orange-900">
+                    Maintenance Jaringan FO
+                  </span>
+                </div>
+
+                {/* Legend Gaji Teknisi */}
+                <div className="flex items-center space-x-1.5 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
+                  <div className="w-3.5 h-3 rounded-xs bg-purple-500 shadow-xs"></div>
+                  <span className="font-bold text-purple-900">
+                    Gaji & Honor Teknisi
+                  </span>
+                </div>
+
+                {/* Legend Bandwidth Upstream */}
+                <div className="flex items-center space-x-1.5 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
+                  <div className="w-3.5 h-3 rounded-xs bg-sky-500 shadow-xs"></div>
+                  <span className="font-bold text-sky-900">
+                    Sewa Bandwidth ISP
+                  </span>
+                </div>
+              </div>
+
+              {/* Tampilan Bar Mode: Berdampingan (Grouped) vs Bertumpuk (Stacked) */}
+              <div className="flex items-center space-x-2">
+                <span className="text-[11px] text-slate-500 font-medium">Model Bar:</span>
+                <div className="inline-flex p-0.5 bg-slate-100 rounded-lg text-[11px]">
+                  <button
+                    onClick={() => setComparisonBarMode('grouped')}
+                    className={`px-2.5 py-1 rounded-md transition-colors font-medium ${
+                      comparisonBarMode === 'grouped'
+                        ? 'bg-white text-slate-900 shadow-xs font-bold'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    Berdampingan (Grouped)
+                  </button>
+                  <button
+                    onClick={() => setComparisonBarMode('stacked')}
+                    className={`px-2.5 py-1 rounded-md transition-colors font-medium ${
+                      comparisonBarMode === 'stacked'
+                        ? 'bg-white text-slate-900 shadow-xs font-bold'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    Komposisi Bertumpuk (Stacked)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Recharts Bar Chart Perbandingan Opex vs Pendapatan */}
+            <div className="w-full h-80 sm:h-96 pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={monthlyCashFlowData}
+                  margin={{ top: 15, right: 15, left: 10, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fill: '#475569', fontSize: 11, fontWeight: 600 }}
+                    tickLine={false}
+                    axisLine={{ stroke: '#cbd5e1' }}
+                  />
+                  <YAxis
+                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    tickFormatter={(val) => `Rp ${(val / 1000000).toFixed(1)}jt`}
+                    tickLine={false}
+                    axisLine={false}
+                    width={70}
+                  />
+                  <Tooltip content={<CustomExpenseComparisonTooltip />} />
+                  <Legend
+                    verticalAlign="top"
+                    align="right"
+                    wrapperStyle={{ paddingBottom: '10px', fontSize: '11px' }}
+                  />
+
+                  {/* Bar 1: Total Pendapatan Masuk */}
+                  <Bar
+                    dataKey="inflow"
+                    name="Pendapatan Masuk"
+                    fill="#10b981"
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={40}
+                  />
+
+                  {/* Bar Komponen Biaya Operasional */}
+                  {comparisonBarMode === 'stacked' ? (
+                    <>
+                      <Bar
+                        dataKey="bandwidth"
+                        name="Bandwidth ISP"
+                        stackId="opexStack"
+                        fill="#0284c7"
+                        maxBarSize={40}
+                      />
+                      <Bar
+                        dataKey="listrik"
+                        name="Biaya Listrik PLN NOC"
+                        stackId="opexStack"
+                        fill="#f59e0b"
+                        maxBarSize={40}
+                      />
+                      <Bar
+                        dataKey="maintenance"
+                        name="Maintenance FO & ODP"
+                        stackId="opexStack"
+                        fill="#f97316"
+                        maxBarSize={40}
+                      />
+                      <Bar
+                        dataKey="gaji"
+                        name="Gaji & Honor Teknisi"
+                        stackId="opexStack"
+                        fill="#a855f7"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={40}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Bar
+                        dataKey="listrik"
+                        name="Biaya Listrik PLN"
+                        fill="#f59e0b"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={28}
+                      />
+                      <Bar
+                        dataKey="maintenance"
+                        name="Maintenance Jaringan FO"
+                        fill="#f97316"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={28}
+                      />
+                      <Bar
+                        dataKey="gaji"
+                        name="Gaji & Honor Teknisi"
+                        fill="#a855f7"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={28}
+                      />
+                      <Bar
+                        dataKey="bandwidth"
+                        name="Bandwidth ISP"
+                        fill="#0284c7"
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={28}
+                      />
+                    </>
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Quick Cards: Perbandingan Pengeluaran Kunci vs Pendapatan Bulan Ini */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+              
+              {/* Box 1: Biaya Listrik PLN */}
+              <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-amber-800 font-bold">
+                  <div className="flex items-center space-x-1.5">
+                    <Zap className="w-4 h-4 text-amber-600" />
+                    <span>Biaya Listrik PLN NOC</span>
+                  </div>
+                  <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded-full font-mono">
+                    {monthlyCashFlowData[monthlyCashFlowData.length - 1]?.inflow > 0
+                      ? `${Math.round(((monthlyCashFlowData[monthlyCashFlowData.length - 1]?.listrik || 0) / monthlyCashFlowData[monthlyCashFlowData.length - 1]?.inflow) * 100)}% dari omset`
+                      : '0%'}
+                  </span>
+                </div>
+                <div className="text-lg font-black font-mono text-slate-900">
+                  Rp {(monthlyCashFlowData[monthlyCashFlowData.length - 1]?.listrik || 0).toLocaleString('id-ID')}
+                </div>
+                <div className="text-[11px] text-amber-700/90 leading-tight">
+                  Konsumsi listrik server OLT, router Ruijie, AC NOC & UPS 24 jam nonstop.
+                </div>
+              </div>
+
+              {/* Box 2: Maintenance Jaringan FO */}
+              <div className="bg-orange-50/70 border border-orange-200/80 rounded-2xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-orange-800 font-bold">
+                  <div className="flex items-center space-x-1.5">
+                    <Activity className="w-4 h-4 text-orange-600" />
+                    <span>Maintenance FO & ODP</span>
+                  </div>
+                  <span className="text-[10px] bg-orange-200 text-orange-900 px-1.5 py-0.5 rounded-full font-mono">
+                    {monthlyCashFlowData[monthlyCashFlowData.length - 1]?.inflow > 0
+                      ? `${Math.round(((monthlyCashFlowData[monthlyCashFlowData.length - 1]?.maintenance || 0) / monthlyCashFlowData[monthlyCashFlowData.length - 1]?.inflow) * 100)}% dari omset`
+                      : '0%'}
+                  </span>
+                </div>
+                <div className="text-lg font-black font-mono text-slate-900">
+                  Rp {(monthlyCashFlowData[monthlyCashFlowData.length - 1]?.maintenance || 0).toLocaleString('id-ID')}
+                </div>
+                <div className="text-[11px] text-orange-700/90 leading-tight">
+                  Kabel dropcore, fast connector, box ODP, sleeve splicer & pemeliharaan tiang.
+                </div>
+              </div>
+
+              {/* Box 3: Gaji & Honor Teknisi */}
+              <div className="bg-purple-50/70 border border-purple-200/80 rounded-2xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-purple-800 font-bold">
+                  <div className="flex items-center space-x-1.5">
+                    <Users className="w-4 h-4 text-purple-600" />
+                    <span>Gaji & Honor Teknisi</span>
+                  </div>
+                  <span className="text-[10px] bg-purple-200 text-purple-900 px-1.5 py-0.5 rounded-full font-mono">
+                    {monthlyCashFlowData[monthlyCashFlowData.length - 1]?.inflow > 0
+                      ? `${Math.round(((monthlyCashFlowData[monthlyCashFlowData.length - 1]?.gaji || 0) / monthlyCashFlowData[monthlyCashFlowData.length - 1]?.inflow) * 100)}% dari omset`
+                      : '0%'}
+                  </span>
+                </div>
+                <div className="text-lg font-black font-mono text-slate-900">
+                  Rp {(monthlyCashFlowData[monthlyCashFlowData.length - 1]?.gaji || 0).toLocaleString('id-ID')}
+                </div>
+                <div className="text-[11px] text-purple-700/90 leading-tight">
+                  Honor teknisi instalasi baru, patroli redaman kabel FO & piket respon gangguan.
+                </div>
+              </div>
+
+              {/* Box 4: Total Sisa Keuntungan Bersih Bulan Ini */}
+              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-emerald-800 font-bold">
+                  <div className="flex items-center space-x-1.5">
+                    <Coins className="w-4 h-4 text-emerald-600" />
+                    <span>Sisa Kas Bersih (Surplus)</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded-full font-bold">
+                    {monthlyCashFlowData[monthlyCashFlowData.length - 1]?.profitMargin}% Margin
+                  </span>
+                </div>
+                <div className="text-lg font-black font-mono text-emerald-700">
+                  +Rp {(monthlyCashFlowData[monthlyCashFlowData.length - 1]?.surplus || 0).toLocaleString('id-ID')}
+                </div>
+                <div className="text-[11px] text-emerald-700/90 leading-tight">
+                  Surplus pendapatan setelah dikurangi total biaya operasional bulan berjalan.
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        )}
 
         {/* Tab 1: Grafik Area Arus Kas Masuk vs Keluar */}
         {financialActiveTab === 'chart' && (

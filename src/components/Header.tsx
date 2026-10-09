@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   isCollapsed,
   setIsCollapsed
 }) => {
-  const { currentUser, logout, pelangganList } = useApp();
+  const { currentUser, logout, pelangganList, settings } = useApp();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   const isolatedCount = pelangganList.filter(p => p.status === 'isolated').length;
@@ -67,20 +67,30 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Brand Logo */}
             <button 
               onClick={() => setActiveTab('dashboard')} 
-              className="flex items-center space-x-2.5 text-left focus:outline-none"
+              className="flex items-center space-x-2.5 text-left focus:outline-none group"
             >
-              <div className="w-9 h-9 rounded-xl bg-sky-600 flex items-center justify-center text-white font-bold shadow-md">
-                <Wifi className="w-5 h-5" />
-              </div>
+              {settings.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt={settings.brandShortName || settings.ispName}
+                  className="w-9 h-9 rounded-xl object-contain bg-slate-800 p-0.5 border border-slate-700 shadow-md group-hover:border-sky-500 transition-colors"
+                />
+              ) : (
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-cyan-500 flex items-center justify-center text-white font-bold shadow-md group-hover:shadow-sky-500/20 transition-all">
+                  <Wifi className="w-5 h-5" />
+                </div>
+              )}
               <div>
                 <div className="flex items-center space-x-1.5">
-                  <span className="font-extrabold tracking-tight text-base sm:text-lg text-white">anuwani</span>
+                  <span className="font-extrabold tracking-tight text-base sm:text-lg text-white">
+                    {settings.brandShortName || 'Anuwani'}
+                  </span>
                   <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-950 text-sky-400 border border-sky-800">
                     RT/RW Net
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400 hidden sm:block">
-                  Ruijie Reyee Cloud NOC · CodeIgniter v4.6 & MySQL
+                <p className="text-[10px] text-slate-400 hidden sm:block truncate max-w-[280px]">
+                  {settings.tagline || 'Ruijie Reyee Cloud NOC · CodeIgniter v4.6'}
                 </p>
               </div>
             </button>
